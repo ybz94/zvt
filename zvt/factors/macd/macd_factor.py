@@ -15,7 +15,12 @@ class MacdFactor(TechnicalFactor):
         return None
 
     def drawer_sub_df_list(self) -> Optional[List[pd.DataFrame]]:
-        return [self.factor_df]
+        return [self.factor_df[['diff', 'dea', 'macd']]]
+
+    def drawer_sub_col_chart(self) -> Optional[dict]:
+        return {'diff': 'line',
+                'dea': 'line',
+                'macd': 'bar'}
 
 
 class BullFactor(MacdFactor):

@@ -33,7 +33,7 @@ class Trader(object):
                  real_time: bool = False,
                  kdata_use_begin_time: bool = False,
                  draw_result: bool = True,
-                 rich_mode: bool = True,
+                 rich_mode: bool = False,
                  adjust_type: AdjustType = None) -> None:
         assert self.entity_schema is not None
 
@@ -136,10 +136,13 @@ class Trader(object):
         else:
             codes = None
 
+        entity_type = self.entity_schema.__name__.lower()
+
         sim_account = TraderInfo(id=self.trader_name,
                                  entity_id=f'trader_zvt_{self.trader_name}',
                                  timestamp=self.start_timestamp,
                                  trader_name=self.trader_name,
+                                 entity_type=entity_type,
                                  entity_ids=entity_ids,
                                  exchanges=exchanges,
                                  codes=codes,
@@ -319,7 +322,7 @@ class Trader(object):
     def in_trading_date(self, timestamp):
         return to_time_str(timestamp) in self.trading_dates
 
-    def on_time(self, timestamp):
+    def on_time(self, timestamp: pd.Timestamp):
         self.logger.debug(f'current timestamp:{timestamp}')
 
     def on_trading_signals(self, trading_signals: List[TradingSignal]):
@@ -397,6 +400,9 @@ class Trader(object):
 
             self.on_time(timestamp=timestamp)
 
+            # 一般来说selector(factors)计算 多标的 历史数据比较快，多级别的计算也比较方便，常用于全市场标的粗过滤
+            # 更细节的控制可以在filter_selector_long_targets/filter_selector_short_targets里进一步处理
+            # 也可以在on_time里面设计一些自己的逻辑配合过滤
             if self.selectors:
                 for level in self.trading_level_asc:
                     # in every cycle, all level selector do its job in its time
@@ -419,10 +425,10 @@ class Trader(object):
                                 if short_targets:
                                     all_short_targets += short_targets
 
-                        if all_long_targets:
-                            self.set_long_targets_by_level(level, all_long_targets)
-                        if all_short_targets:
-                            self.set_short_targets_by_level(level, all_short_targets)
+                        # if all_long_targets:
+                        self.set_long_targets_by_level(level, all_long_targets)
+                        # if all_short_targets:
+                        self.set_short_targets_by_level(level, all_short_targets)
 
                         # the time always move on by min level step and we could check all targets of levels
                         # 1)the targets is generated for next interval
@@ -461,7 +467,7 @@ class StockTrader(Trader):
                  start_timestamp: Union[str, pd.Timestamp] = None, end_timestamp: Union[str, pd.Timestamp] = None,
                  provider: str = None, level: Union[str, IntervalLevel] = IntervalLevel.LEVEL_1DAY,
                  trader_name: str = None, real_time: bool = False, kdata_use_begin_time: bool = False,
-                 draw_result: bool = True, rich_mode: bool = True, adjust_type: AdjustType = AdjustType.hfq) -> None:
+                 draw_result: bool = True, rich_mode: bool = False, adjust_type: AdjustType = AdjustType.hfq) -> None:
         super().__init__(entity_ids, exchanges, codes, start_timestamp, end_timestamp, provider, level, trader_name,
                          real_time, kdata_use_begin_time, draw_result, rich_mode, adjust_type)
 

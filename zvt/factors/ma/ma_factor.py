@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import argparse
-from typing import List, Union, Type
+from typing import List, Union, Type, Optional
 
 import pandas as pd
 
@@ -47,6 +47,9 @@ class MaFactor(TechnicalFactor):
                          start_timestamp, end_timestamp, columns, filters, order, limit, level, category_field,
                          time_field, computing_window, keep_all_timestamp, fill_method, effective_number, transformer,
                          None, need_persist, dry_run, factor_name, clear_state, adjust_type)
+
+    def drawer_factor_df_list(self) -> Optional[List[pd.DataFrame]]:
+        return [self.factor_df[self.transformer.indicators]]
 
 
 class CrossMaFactor(MaFactor):

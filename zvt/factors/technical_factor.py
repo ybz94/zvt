@@ -1,4 +1,4 @@
-from typing import List, Union, Type
+from typing import List, Union, Type, Optional
 
 import pandas as pd
 
@@ -6,6 +6,7 @@ from zvt.api.quote import get_kdata_schema
 from zvt.contract import IntervalLevel, EntityMixin, AdjustType
 from zvt.contract.factor import Factor, Transformer, Accumulator, FactorMeta
 from zvt.domain import Stock
+from zvt.utils import pd_is_not_null
 
 
 class TechnicalFactor(Factor, metaclass=FactorMeta):
